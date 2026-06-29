@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Company Store · Fortune's Folly</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ledger:#15211c;        /* deep ledger green-black */
+    --ledger-2:#1b2a23;      /* raised panel */
+    --ledger-3:#23362c;      /* hover / card */
+    --brass:#c79a45;         /* aged brass gold */
+    --brass-dim:#8a6e34;
+    --oxblood:#a8392b;       /* upcharge / premium */
+    --oxblood-bright:#cc4b38;
+    --teal:#4fa892;          /* in stock */
+    --teal-dim:#2f6356;
+    --bone:#e9e2cf;          /* paper / primary text */
+    --bone-dim:#a39d8a;      /* muted text */
+    --rule:#3a4d40;
+    --ink:#0e1714;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--ledger);
+    color:var(--bone);
+    font-family:'Spectral',Georgia,serif;
+    font-size:16px;line-height:1.6;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 31px, #ffffff05 31px, #ffffff05 32px);
+  }
+  ::selection{background:var(--brass);color:var(--ink);}
+
+  /* ── HEADER ── */
+  .masthead{
+    background:linear-gradient(180deg,var(--ink) 0%,var(--ledger) 100%);
+    border-bottom:2px solid var(--brass-dim);
+    padding:2rem 1.5rem 1.5rem;position:relative;overflow:hidden;
+  }
+  .masthead::before{
+    content:'';position:absolute;top:-50%;right:-10%;width:50%;height:200%;
+    background:radial-gradient(ellipse,#c79a4518 0%,transparent 60%);pointer-events:none;
+  }
+  .masthead-inner{max-width:1180px;margin:0 auto;position:relative;}
+  .establishment{
+    font-family:'Oswald',sans-serif;font-size:0.7rem;letter-spacing:0.45em;
+    text-transform:uppercase;color:var(--brass);margin-bottom:0.35rem;font-weight:500;
+  }
+  .masthead h1{
+    font-family:'Oswald',sans-serif;font-weight:700;
+    font-size:clamp(2rem,6vw,3.6rem);line-height:0.95;letter-spacing:-0.01em;
+    color:var(--bone);text-transform:uppercase;
+  }
+  .masthead h1 .amp{color:var(--brass);font-weight:300;}
+  .proprietor{
+    font-style:italic;color:var(--bone-dim);font-size:0.98rem;margin-top:0.6rem;
+    max-width:560px;
+  }
+  .proprietor strong{color:var(--teal);font-style:normal;font-weight:600;}
+  .upcharge-stamp{
+    position:absolute;top:0.5rem;right:0;
+    border:2px solid var(--oxblood);color:var(--oxblood-bright);
+    font-family:'Oswald',sans-serif;font-weight:700;text-transform:uppercase;
+    font-size:0.72rem;letter-spacing:0.15em;padding:0.5rem 0.9rem;
+    transform:rotate(-7deg);text-align:center;line-height:1.3;
+    background:#a8392b14;
+  }
+  .upcharge-stamp .big{display:block;font-size:1.5rem;letter-spacing:0;}
+  @media(max-width:640px){.upcharge-stamp{position:static;display:inline-block;transform:rotate(-3deg);margin-top:1rem;}}
+
+  /* ── CONTROLS BAR ── */
+  .controls{
+    position:sticky;top:0;z-index:50;
+    background:var(--ledger-2);border-bottom:1px solid var(--rule);
+    padding:0.85rem 1.5rem;box-shadow:0 6px 18px #0008;
+  }
+  .controls-inner{max-width:1180px;margin:0 auto;display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;}
+  .search-wrap{flex:1;min-width:200px;position:relative;}
+  .search-wrap svg{position:absolute;left:0.8rem;top:50%;transform:translateY(-50%);width:16px;height:16px;fill:var(--bone-dim);}
+  #search{
+    width:100%;background:var(--ink);border:1px solid var(--rule);
+    color:var(--bone);font-family:'Spectral',serif;font-size:0.95rem;
+    padding:0.6rem 0.8rem 0.6rem 2.4rem;border-radius:2px;
+  }
+  #search:focus{outline:none;border-color:var(--brass);}
+  #search::placeholder{color:var(--bone-dim);font-style:italic;}
+  .ctrl-select{
+    background:var(--ink);border:1px solid var(--rule);color:var(--bone);
+    font-family:'Oswald',sans-serif;font-size:0.78rem;letter-spacing:0.05em;
+    text-transform:uppercase;padding:0.55rem 0.7rem;border-radius:2px;cursor:pointer;
+  }
+  .ctrl-select:focus{outline:none;border-color:var(--brass);}
+  .result-count{
+    font-family:'JetBrains Mono',monospace;font-size:0.74rem;color:var(--bone-dim);
+    white-space:nowrap;letter-spacing:0.02em;
+  }
+
+  /* ── CATEGORY CHIPS ── */
+  .chip-bar{max-width:1180px;margin:1.25rem auto 0;padding:0 1.5rem;display:flex;gap:0.5rem;flex-wrap:wrap;}
+  .chip{
+    font-family:'Oswald',sans-serif;font-size:0.72rem;letter-spacing:0.08em;
+    text-transform:uppercase;color:var(--bone-dim);background:transparent;
+    border:1px solid var(--rule);padding:0.4rem 0.85rem;border-radius:20px;
+    cursor:pointer;transition:all .15s;white-space:nowrap;
+  }
+  .chip:hover{border-color:var(--brass-dim);color:var(--bone);}
+  .chip.active{background:var(--brass);border-color:var(--brass);color:var(--ink);font-weight:600;}
+
+  /* ── LAYOUT ── */
+  .layout{max-width:1180px;margin:1.5rem auto 4rem;padding:0 1.5rem;display:grid;grid-template-columns:1fr 320px;gap:2rem;}
+  @media(max-width:920px){.layout{grid-template-columns:1fr;}}
+
+  /* ── CATEGORY SECTION ── */
+  .cat-section{margin-bottom:2.5rem;}
+  .cat-header{
+    display:flex;align-items:baseline;gap:0.8rem;
+    border-bottom:1px solid var(--brass-dim);padding-bottom:0.4rem;margin-bottom:1rem;
+  }
+  .cat-header h2{
+    font-family:'Oswald',sans-serif;font-weight:600;font-size:1.15rem;
+    letter-spacing:0.06em;text-transform:uppercase;color:var(--brass);
+  }
+  .cat-header .cat-count{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--bone-dim);}
+
+  /* ── ITEM CARD ── */
+  .item{
+    background:var(--ledger-2);border:1px solid var(--rule);border-left:3px solid var(--teal-dim);
+    padding:1rem 1.1rem;margin-bottom:0.7rem;display:grid;
+    grid-template-columns:1fr auto;gap:0.8rem 1.2rem;align-items:start;transition:border-color .15s,background .15s;
+  }
+  .item:hover{background:var(--ledger-3);border-left-color:var(--teal);}
+  .item.oos{border-left-color:var(--oxblood);opacity:0.82;}
+  .item.premium-only{border-left-color:var(--brass);}
+  .item-main{min-width:0;}
+  .item-name{
+    font-family:'Oswald',sans-serif;font-weight:500;font-size:1.02rem;
+    color:var(--bone);letter-spacing:0.01em;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;
+  }
+  .rarity-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;}
+  .r-common{background:#9aa3a0;} .r-uncommon{background:var(--teal);}
+  .r-rare{background:#4f86c7;} .r-veryrare{background:#9a6ac4;} .r-legendary{background:var(--brass);}
+  .item-tags{display:flex;gap:0.35rem;flex-wrap:wrap;margin-top:0.35rem;}
+  .tag{
+    font-family:'Oswald',sans-serif;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;
+    color:var(--bone-dim);border:1px solid var(--rule);padding:0.1rem 0.4rem;border-radius:2px;
+  }
+  .tag.rarity{color:var(--bone);}
+  .item-effect{font-size:0.88rem;color:var(--bone-dim);margin-top:0.45rem;line-height:1.5;}
+  .item-effect strong{color:var(--bone);font-weight:600;}
+
+  /* price block */
+  .item-price{text-align:right;white-space:nowrap;}
+  .price-base{
+    font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--bone-dim);
+    text-decoration:line-through;text-decoration-color:var(--oxblood);display:block;
+  }
+  .price-folly{
+    font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.15rem;
+    color:var(--brass);display:block;line-height:1.2;
+  }
+  .price-folly .gp{font-size:0.7rem;color:var(--brass-dim);font-weight:400;}
+  .stock-line{
+    font-family:'JetBrains Mono',monospace;font-size:0.68rem;margin-top:0.3rem;letter-spacing:0.02em;
+  }
+  .in-stock{color:var(--teal);} .low-stock{color:var(--brass);} .out-stock{color:var(--oxblood-bright);}
+  .delivery-line{
+    font-family:'JetBrains Mono',monospace;font-size:0.64rem;color:var(--bone-dim);margin-top:0.2rem;
+  }
+  .add-btn{
+    margin-top:0.5rem;font-family:'Oswald',sans-serif;font-size:0.68rem;letter-spacing:0.1em;
+    text-transform:uppercase;background:transparent;border:1px solid var(--brass-dim);
+    color:var(--brass);padding:0.35rem 0.7rem;border-radius:2px;cursor:pointer;transition:all .15s;
+  }
+  .add-btn:hover{background:var(--brass);color:var(--ink);}
+  .add-btn:disabled{border-color:var(--rule);color:var(--bone-dim);cursor:not-allowed;}
+  .add-btn:disabled:hover{background:transparent;color:var(--bone-dim);}
+
+  /* ── SIDEBAR ── */
+  .sidebar{position:sticky;top:5.5rem;align-self:start;}
+  @media(max-width:920px){.sidebar{position:static;}}
+  .panel{background:var(--ledger-2);border:1px solid var(--rule);margin-bottom:1.25rem;}
+  .panel-head{
+    background:var(--ink);border-bottom:1px solid var(--rule);padding:0.7rem 1rem;
+    font-family:'Oswald',sans-serif;font-weight:600;font-size:0.78rem;letter-spacing:0.15em;
+    text-transform:uppercase;color:var(--brass);display:flex;justify-content:space-between;align-items:center;
+  }
+  .panel-body{padding:1rem;}
+
+  /* membership card */
+  .member-card{
+    background:linear-gradient(135deg,var(--ledger-3) 0%,var(--ink) 100%);
+    border:1px solid var(--brass-dim);padding:1.1rem;position:relative;overflow:hidden;
+  }
+  .member-card::after{
+    content:'';position:absolute;bottom:-20px;right:-20px;width:90px;height:90px;
+    background:radial-gradient(circle,var(--oxblood) 0%,var(--oxblood) 38%,transparent 40%);
+    opacity:0.16;
+  }
+  .wax-seal{
+    width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 38% 35%,var(--oxblood-bright),var(--oxblood) 60%,#7a2519);
+    display:flex;align-items:center;justify-content:center;margin-bottom:0.7rem;
+    box-shadow:inset -2px -3px 6px #0006,0 2px 4px #0008;
+  }
+  .wax-seal span{font-family:'Oswald',sans-serif;font-weight:700;color:#e9c9a0;font-size:1.3rem;}
+  .member-tier{font-family:'Oswald',sans-serif;font-weight:700;font-size:1.05rem;letter-spacing:0.05em;text-transform:uppercase;color:var(--bone);}
+  .member-sub{font-size:0.82rem;color:var(--bone-dim);font-style:italic;margin:0.3rem 0 0.7rem;}
+  .member-perk{font-size:0.82rem;color:var(--bone);display:flex;gap:0.5rem;margin-bottom:0.4rem;line-height:1.4;}
+  .member-perk::before{content:'※';color:var(--brass);flex-shrink:0;}
+  .member-toggle{
+    margin-top:0.9rem;width:100%;font-family:'Oswald',sans-serif;font-size:0.72rem;letter-spacing:0.1em;
+    text-transform:uppercase;padding:0.55rem;border-radius:2px;cursor:pointer;transition:all .15s;
+    background:var(--brass);border:1px solid var(--brass);color:var(--ink);font-weight:600;
+  }
+  .member-toggle.active{background:transparent;color:var(--brass);}
+  .member-toggle:hover{opacity:0.85;}
+
+  /* cart */
+  .cart-empty{font-size:0.85rem;color:var(--bone-dim);font-style:italic;text-align:center;padding:0.5rem 0;}
+  .cart-item{display:flex;justify-content:space-between;gap:0.5rem;padding:0.5rem 0;border-bottom:1px dotted var(--rule);font-size:0.85rem;}
+  .cart-item:last-child{border-bottom:none;}
+  .cart-item-name{color:var(--bone);min-width:0;}
+  .cart-item-name .qty{font-family:'JetBrains Mono',monospace;color:var(--brass);font-size:0.78rem;}
+  .cart-item-meta{font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--bone-dim);}
+  .cart-item-price{font-family:'JetBrains Mono',monospace;color:var(--brass);white-space:nowrap;font-weight:500;}
+  .cart-rm{color:var(--oxblood-bright);cursor:pointer;font-size:0.9rem;padding:0 0.2rem;}
+  .cart-totals{margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid var(--rule);}
+  .cart-row{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:0.8rem;margin-bottom:0.3rem;color:var(--bone-dim);}
+  .cart-row.total{font-size:1.05rem;color:var(--brass);font-weight:700;margin-top:0.4rem;}
+  .cart-row.delivery-eta{color:var(--teal);}
+  .clear-cart{margin-top:0.7rem;width:100%;background:transparent;border:1px solid var(--rule);color:var(--bone-dim);
+    font-family:'Oswald',sans-serif;font-size:0.66rem;letter-spacing:0.1em;text-transform:uppercase;
+    padding:0.45rem;border-radius:2px;cursor:pointer;}
+  .clear-cart:hover{border-color:var(--oxblood);color:var(--oxblood-bright);}
+
+  .legend{font-size:0.74rem;color:var(--bone-dim);line-height:1.7;}
+  .legend .rarity-dot{margin-right:0.4rem;vertical-align:middle;}
+
+  .no-results{text-align:center;padding:3rem 1rem;color:var(--bone-dim);font-style:italic;}
+  .no-results strong{color:var(--bone);display:block;font-style:normal;font-family:'Oswald',sans-serif;
+    text-transform:uppercase;letter-spacing:0.1em;font-size:0.9rem;margin-bottom:0.4rem;}
+
+  .charter-notice{
+    background:#1a1410;border-bottom:1px solid var(--oxblood);
+    padding:0.55rem 1.5rem;
+  }
+  .charter-notice-inner{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;}
+  .charter-badge{
+    font-family:'Oswald',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.15em;
+    text-transform:uppercase;color:var(--oxblood-bright);border:1px solid var(--oxblood);
+    padding:0.2rem 0.5rem;border-radius:2px;white-space:nowrap;
+  }
+  .charter-text{font-size:0.82rem;color:var(--bone-dim);font-style:italic;}
+  .charter-text strong{color:var(--bone-dim);font-weight:600;font-style:normal;}
+  /* ── PARTY SYNC ── */
+  .sync-status{font-family:'JetBrains Mono',monospace;font-size:0.6rem;padding:0.1rem 0.4rem;border-radius:2px;letter-spacing:0.05em;}
+  .sync-off{background:#3a2a2a;color:var(--oxblood-bright);}
+  .sync-on{background:#1e3a30;color:var(--teal);}
+  .sync-connecting{background:#3a341e;color:var(--brass);}
+  .identity-row{display:flex;flex-direction:column;gap:0.4rem;}
+  .sync-input{background:var(--ink);border:1px solid var(--rule);color:var(--bone);font-family:'Spectral',serif;font-size:0.85rem;padding:0.45rem 0.6rem;border-radius:2px;width:100%;}
+  .sync-input:focus{outline:none;border-color:var(--brass);}
+  .sync-input::placeholder{color:var(--bone-dim);font-style:italic;}
+  .sync-btn{font-family:'Oswald',sans-serif;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;background:var(--brass);border:1px solid var(--brass);color:var(--ink);font-weight:600;padding:0.5rem;border-radius:2px;cursor:pointer;transition:opacity .15s;}
+  .sync-btn:hover{opacity:0.85;}
+  .sync-btn.secondary{background:transparent;color:var(--brass);}
+  .sync-hint{font-size:0.74rem;color:var(--bone-dim);font-style:italic;margin-top:0.6rem;line-height:1.5;}
+  .list-actions{display:flex;gap:0.4rem;margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid var(--rule);}
+  .list-actions .sync-input{flex:1;}
+  .saved-list{display:flex;justify-content:space-between;align-items:center;gap:0.5rem;padding:0.55rem 0;border-bottom:1px dotted var(--rule);font-size:0.86rem;}
+  .saved-list:last-child{border-bottom:none;}
+  .saved-list-name{color:var(--bone);font-weight:600;min-width:0;cursor:pointer;}
+  .saved-list-name:hover{color:var(--brass);}
+  .saved-list-meta{font-family:'JetBrains Mono',monospace;font-size:0.66rem;color:var(--bone-dim);}
+  .saved-list-owner{color:var(--teal);}
+  .saved-list-btns{display:flex;gap:0.3rem;white-space:nowrap;}
+  .mini-btn{font-family:'Oswald',sans-serif;font-size:0.62rem;letter-spacing:0.05em;text-transform:uppercase;background:transparent;border:1px solid var(--rule);color:var(--bone-dim);padding:0.2rem 0.45rem;border-radius:2px;cursor:pointer;}
+  .mini-btn:hover{border-color:var(--brass);color:var(--brass);}
+  .mini-btn.danger:hover{border-color:var(--oxblood);color:var(--oxblood-bright);}
+  .party-member-cart{padding:0.6rem 0;border-bottom:1px dotted var(--rule);}
+  .party-member-cart:last-child{border-bottom:none;}
+  .party-member-name{font-family:'Oswald',sans-serif;font-size:0.82rem;letter-spacing:0.05em;color:var(--teal);display:flex;justify-content:space-between;align-items:center;}
+  .party-member-name .you-badge{font-size:0.58rem;background:var(--brass);color:var(--ink);padding:0.05rem 0.35rem;border-radius:2px;letter-spacing:0.1em;}
+  .party-member-items{font-size:0.78rem;color:var(--bone-dim);margin-top:0.25rem;line-height:1.5;}
+  .party-member-total{font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--brass);margin-top:0.2rem;}
+  .party-member-empty{font-size:0.76rem;color:var(--bone-dim);font-style:italic;margin-top:0.2rem;}
+
+  footer{border-top:1px solid var(--rule);background:var(--ink);padding:1.5rem;text-align:center;
+    font-size:0.78rem;color:var(--bone-dim);font-style:italic;}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-inner">
+    <div class="establishment">Fortune's Folly · The Only Licensed Store on the Island</div>
+    <h1>The Company <span class="amp">&</span> Store</h1>
+    <p class="proprietor">Proprietor: <strong>Silas Vane</strong> — Merchant Prince of the off-island guild, sole licensed supplier on the island under charter of the Iron Circle. The prices are high. It is the only option you've got.</p>
+    <div class="upcharge-stamp">Folly Rate<span class="big">+50%</span>over base</div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="controls-inner">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      <input id="search" type="text" placeholder="Search the manifest — potions, scrolls, wands, gear…" autocomplete="off">
+    </div>
+    <select class="ctrl-select" id="rarityFilter">
+      <option value="">All Rarities</option>
+      <option value="Common">Common</option>
+      <option value="Uncommon">Uncommon</option>
+      <option value="Rare">Rare</option>
+      <option value="Very Rare">Very Rare</option>
+      <option value="Legendary">Legendary</option>
+    </select>
+    <select class="ctrl-select" id="stockFilter">
+      <option value="">Any Stock</option>
+      <option value="in">In Stock</option>
+      <option value="low">Low Stock</option>
+      <option value="order">Special Order</option>
+    </select>
+    <select class="ctrl-select" id="sortBy">
+      <option value="cat">Sort: Category</option>
+      <option value="price-asc">Price ↑</option>
+      <option value="price-desc">Price ↓</option>
+      <option value="name">Name A–Z</option>
+      <option value="rarity">Rarity</option>
+    </select>
+    <span class="result-count" id="resultCount"></span>
+  </div>
+</div>
+
+<div class="charter-notice">
+  <div class="charter-notice-inner">
+    <span class="charter-badge">Iron Circle Charter</span>
+    <span class="charter-text">The Company Store is the island's <strong>sole licensed merchant</strong>. Trade conducted elsewhere is unlicensed and falls under Iron Circle jurisdiction.</span>
+  </div>
+</div>
+
+<div class="chip-bar" id="chipBar"></div>
+
+<div class="layout">
+  <div id="catalog"></div>
+
+  <aside class="sidebar">
+    <div class="panel">
+      <div class="panel-head">The Vane Account <span style="font-size:0.6rem;color:var(--teal);">NEW</span></div>
+      <div class="panel-body">
+        <div class="member-card">
+          <div class="wax-seal"><span>V</span></div>
+          <div class="member-tier">Premium Delivery</div>
+          <div class="member-sub">By invitation. Vane extends accounts to customers worth cultivating.</div>
+          <div class="member-perk">Guild couriers deliver to your door anywhere on the island under Iron Circle escort</div>
+          <div class="member-perk">Delivery time varies by the haul — light goods in a day or two, heavy freight longer</div>
+          <div class="member-perk">First refusal on rare stock before it reaches the floor</div>
+          <div class="member-perk">A standing line of credit — and a quiet word in the right ears</div>
+          <button class="member-toggle" id="memberToggle" onclick="toggleMember()">Activate Membership</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="syncPanel">
+      <div class="panel-head">Party Sync <span id="syncStatus" class="sync-status sync-off">offline</span></div>
+      <div class="panel-body">
+        <div id="identityRow" class="identity-row">
+          <input id="playerName" class="sync-input" type="text" placeholder="Your name…" maxlength="24" autocomplete="off">
+          <input id="partyCode" class="sync-input" type="text" placeholder="Party code…" maxlength="24" autocomplete="off">
+          <button class="sync-btn" id="joinBtn" onclick="joinParty()">Join</button>
+        </div>
+        <div id="syncHint" class="sync-hint">Pick a name and a shared party code. Everyone who enters the same code sees each other's carts and lists live.</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">Your Order <span id="cartCount" class="result-count">0 items</span></div>
+      <div class="panel-body">
+        <div id="cartBody"><div class="cart-empty">Nothing tallied yet.</div></div>
+        <div class="list-actions" id="listActions">
+          <input id="listName" class="sync-input" type="text" placeholder="Name this list…" maxlength="40" autocomplete="off">
+          <button class="sync-btn" onclick="saveCurrentList()">Save List</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="savedListsPanel">
+      <div class="panel-head">Saved Lists <span id="listCount" class="result-count">0</span></div>
+      <div class="panel-body">
+        <div id="savedListsBody"><div class="cart-empty">No saved lists yet.</div></div>
+      </div>
+    </div>
+
+    <div class="panel" id="partyPanel" style="display:none;">
+      <div class="panel-head">The Party <span id="partyCount" class="result-count">0 here</span></div>
+      <div class="panel-body">
+        <div id="partyBody"><div class="cart-empty">No one else here yet.</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">Rarity Marks</div>
+      <div class="panel-body legend">
+        <span class="rarity-dot r-common"></span>Common &nbsp;
+        <span class="rarity-dot r-uncommon"></span>Uncommon<br>
+        <span class="rarity-dot r-rare"></span>Rare &nbsp;
+        <span class="rarity-dot r-veryrare"></span>Very Rare<br>
+        <span class="rarity-dot r-legendary"></span>Legendary
+        <div style="margin-top:0.7rem;padding-top:0.6rem;border-top:1px dotted var(--rule);">
+          Base price <span style="text-decoration:line-through;text-decoration-color:var(--oxblood);">struck through</span>, Folly rate in <span style="color:var(--brass);">brass</span>.
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<footer>
+  "The prices are high, but it's the only option you've got." — Silas Vane, Proprietor · Licensed under charter of the Iron Circle
+</footer>
+
+<!-- ════════════════════════════════════════════════════════════════
+     FIREBASE CONFIG — PASTE YOUR KEYS HERE TO ENABLE LIVE PARTY SYNC
+     ════════════════════════════════════════════════════════════════
+     Without this, the store still works: shopping lists save locally
+     in each player's browser. To turn on LIVE shared sync:
+       1. Go to https://console.firebase.google.com  (free)
+       2. Create a project. In it, create a "Realtime Database"
+          (start in TEST mode for easy setup).
+       3. Project Settings → "Your apps" → Web app → copy the
+          firebaseConfig object.
+       4. Paste it below, replacing the placeholder values.
+       5. Re-host this file. Players entering the same party code
+          will now see each other live.
+     ════════════════════════════════════════════════════════════════ -->
+
+<script>
+window.FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDcNsFdp2wWnIv8UwpDnsqIScuUk_dKR0A",
+  authDomain: "the-d1665.firebaseapp.com",
+  databaseURL: "https://the-d1665-default-rtdb.firebaseio.com",
+  projectId: "the-d1665",
+  storageBucket: "the-d1665.firebasestorage.app",
+  messagingSenderId: "335521594155",
+  appId: "1:335521594155:web:de588a1ebd0cb3189da36e"
+};
+</script>
+<script type="module">
+  // Load Firebase only if the config has been filled in.
+  const cfg = window.FIREBASE_CONFIG;
+  const configured = cfg && cfg.apiKey && !cfg.apiKey.startsWith('PASTE');
+  if (configured) {
+    try {
+      const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+      const { getDatabase, ref, set, onValue, remove, serverTimestamp, onDisconnect } =
+        await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
+      const app = initializeApp(cfg);
+      const db = getDatabase(app);
+      window._fb = { db, ref, set, onValue, remove, serverTimestamp, onDisconnect };
+      window.dispatchEvent(new Event('firebase-ready'));
+    } catch (e) {
+      console.warn('Firebase failed to load; running in local-only mode.', e);
+      window._fbFailed = true;
+      window.dispatchEvent(new Event('firebase-failed'));
+    }
+  } else {
+    window._fbUnconfigured = true;
+    window.dispatchEvent(new Event('firebase-unconfigured'));
+  }
+</script>
+
+<script id="data" type="application/json">
+{"items": [{"name": "Potion of Healing", "cat": "Potions", "rarity": "Common", "base": 50, "stock": 24, "effect": "Restore <strong>2d4+2 HP</strong>. One action to drink.", "tags": ["Healing", "Consumable"]}, {"name": "Potion of Greater Healing", "cat": "Potions", "rarity": "Uncommon", "base": 100, "stock": 11, "effect": "Restore <strong>4d4+4 HP</strong>. One action to drink.", "tags": ["Healing", "Consumable"]}, {"name": "Potion of Superior Healing", "cat": "Potions", "rarity": "Rare", "base": 500, "stock": 3, "effect": "Restore <strong>8d4+8 HP</strong>. One action to drink.", "tags": ["Healing", "Consumable"]}, {"name": "Potion of Supreme Healing", "cat": "Potions", "rarity": "Very Rare", "base": 1000, "stock": "order", "effect": "Restore <strong>10d4+20 HP</strong>. One action to drink.", "tags": ["Healing", "Consumable"]}, {"name": "Potion of Climbing", "cat": "Potions", "rarity": "Common", "base": 50, "stock": 8, "effect": "Climb speed equal to walking speed for 1 hour. Advantage on Athletics to climb.", "tags": ["Utility", "Consumable"]}, {"name": "Potion of Water Breathing", "cat": "Potions", "rarity": "Uncommon", "base": 100, "stock": 9, "effect": "Breathe underwater for 1 hour. Works on self or one creature you feed it to.", "tags": ["Utility", "Consumable", "Sea"]}, {"name": "Potion of Animal Friendship", "cat": "Potions", "rarity": "Uncommon", "base": 100, "stock": 4, "effect": "Cast <strong>Animal Friendship</strong> (DC 11 WIS) as a bonus action. Lasts 1 hour.", "tags": ["Utility", "Consumable"]}, {"name": "Potion of Resistance", "cat": "Potions", "rarity": "Rare", "base": 500, "stock": 5, "effect": "Resistance to one chosen damage type for 1 hour. Choose at purchase.", "tags": ["Buff", "Consumable"]}, {"name": "Potion of Heroism", "cat": "Potions", "rarity": "Rare", "base": 500, "stock": 2, "effect": "<strong>10 temp HP</strong> + advantage on STR checks and saves for 1 hour.", "tags": ["Buff", "Consumable"]}, {"name": "Potion of Speed", "cat": "Potions", "rarity": "Rare", "base": 500, "stock": 1, "effect": "Double speed, +2 AC, advantage on DEX saves, extra action for 1 minute (then 1 level exhaustion).", "tags": ["Buff", "Consumable"]}, {"name": "Potion of Mind Reading", "cat": "Potions", "rarity": "Rare", "base": 500, "stock": "order", "effect": "Read surface thoughts of one creature within 30 ft for 1 hour. No save.", "tags": ["Utility", "Consumable"]}, {"name": "Potion of Gaseous Form", "cat": "Potions", "rarity": "Rare", "base": 500, "stock": 2, "effect": "Become a cloud of vapor for 1 hour. Hover, squeeze through gaps, invisible in darkness.", "tags": ["Utility", "Consumable"]}, {"name": "Potion of Invisibility", "cat": "Potions", "rarity": "Very Rare", "base": 1000, "stock": 1, "effect": "Invisible for 1 hour. Ends if you attack or cast a spell.", "tags": ["Utility", "Consumable"]}, {"name": "Potion of Poison", "cat": "Potions", "rarity": "Uncommon", "base": 100, "stock": 6, "effect": "<strong>3d6 poison</strong> (DC 13 CON for half). Officially &lsquo;pest draught.&rsquo; Vane keeps the paperwork clean.", "tags": ["Contraband", "Consumable"]}, {"name": "Scroll of Magic Missile", "cat": "Scrolls", "rarity": "Common", "base": 25, "stock": 15, "effect": "Three darts, <strong>1d4+1 force</strong> each, auto-hit. Single use.", "tags": ["Scroll", "Lvl 1"]}, {"name": "Scroll of Cure Wounds", "cat": "Scrolls", "rarity": "Common", "base": 25, "stock": 12, "effect": "Touch: restore <strong>1d8 + spell mod</strong> HP. Single use.", "tags": ["Scroll", "Lvl 1", "Healing"]}, {"name": "Scroll of Burning Hands", "cat": "Scrolls", "rarity": "Common", "base": 25, "stock": 7, "effect": "15-ft cone, DC 12 DEX or <strong>3d6 fire</strong>. Single use.", "tags": ["Scroll", "Lvl 1"]}, {"name": "Scroll of Identify", "cat": "Scrolls", "rarity": "Common", "base": 25, "stock": 10, "effect": "Learn all magic properties of one item or effect. Single use.", "tags": ["Scroll", "Lvl 1", "Utility"]}, {"name": "Scroll of Detect Magic", "cat": "Scrolls", "rarity": "Common", "base": 25, "stock": 9, "effect": "Sense magical auras within 30 ft for 10 minutes. Single use.", "tags": ["Scroll", "Lvl 1", "Utility"]}, {"name": "Scroll of Scorching Ray", "cat": "Scrolls", "rarity": "Uncommon", "base": 75, "stock": 5, "effect": "Four rays, +5 to hit, <strong>2d6 fire</strong> each. Single use.", "tags": ["Scroll", "Lvl 2"]}, {"name": "Scroll of Invisibility", "cat": "Scrolls", "rarity": "Uncommon", "base": 75, "stock": 4, "effect": "One creature invisible for 1 hour (concentration). Single use.", "tags": ["Scroll", "Lvl 2", "Utility"]}, {"name": "Scroll of Web", "cat": "Scrolls", "rarity": "Uncommon", "base": 75, "stock": 3, "effect": "20-ft cube of webs; DC 12 DEX or restrained. Single use.", "tags": ["Scroll", "Lvl 2"]}, {"name": "Scroll of Hold Person", "cat": "Scrolls", "rarity": "Uncommon", "base": 75, "stock": 4, "effect": "DC 14 WIS or paralyzed up to 1 minute. Single use.", "tags": ["Scroll", "Lvl 2"]}, {"name": "Scroll of Darkness", "cat": "Scrolls", "rarity": "Uncommon", "base": 75, "stock": 2, "effect": "15-ft sphere of magical darkness for 10 minutes. Single use.", "tags": ["Scroll", "Lvl 2", "Utility"]}, {"name": "Scroll of Fireball", "cat": "Scrolls", "rarity": "Rare", "base": 150, "stock": 3, "effect": "20-ft radius, DC 14 DEX or <strong>8d6 fire</strong>. Single use.", "tags": ["Scroll", "Lvl 3"]}, {"name": "Scroll of Counterspell", "cat": "Scrolls", "rarity": "Rare", "base": 150, "stock": 2, "effect": "Reaction: counter a spell (auto \u22643rd, Arcana +8 vs higher). Single use.", "tags": ["Scroll", "Lvl 3", "Utility"]}, {"name": "Scroll of Freedom of Movement", "cat": "Scrolls", "rarity": "Rare", "base": 200, "stock": 2, "effect": "Ignore difficult terrain; movement unaffected by magical restraint for 1 hour. Single use.", "tags": ["Scroll", "Lvl 4", "Buff"]}, {"name": "Scroll of Dimension Door", "cat": "Scrolls", "rarity": "Rare", "base": 200, "stock": 1, "effect": "Teleport up to 500 ft with one willing creature. Single use.", "tags": ["Scroll", "Lvl 4", "Utility"]}, {"name": "Scroll of Stone Shape", "cat": "Scrolls", "rarity": "Rare", "base": 200, "stock": 2, "effect": "Reshape up to 5 cu ft of stone you touch. Single use.", "tags": ["Scroll", "Lvl 4", "Utility"]}, {"name": "Scroll of Teleportation Circle", "cat": "Scrolls", "rarity": "Very Rare", "base": 400, "stock": "order", "effect": "Open a one-way portal to a known permanent circle. Single use.", "tags": ["Scroll", "Lvl 5", "Utility"]}, {"name": "Scroll of Teleport", "cat": "Scrolls", "rarity": "Very Rare", "base": 2000, "stock": "order", "effect": "Instantly transport up to 8 willing creatures to a destination you know. Single use. The most expensive page Vane will sell you.", "tags": ["Scroll", "Lvl 7", "Utility"]}, {"name": "Wand of Magic Missiles", "cat": "Wands", "rarity": "Uncommon", "base": 200, "stock": 3, "effect": "7 charges. 1 charge = three <strong>1d4+1 force</strong> missiles. No recharge \u2014 burns out.", "tags": ["Wand", "Offense"]}, {"name": "Wand of Frost", "cat": "Wands", "rarity": "Uncommon", "base": 200, "stock": 2, "effect": "5 charges. Cone of Cold (3d8, DC 13) or 1d6 cold single target. No recharge.", "tags": ["Wand", "Offense"]}, {"name": "Wand of Secrets", "cat": "Wands", "rarity": "Uncommon", "base": 175, "stock": 2, "effect": "3 charges. Detect Magic or Detect Thoughts (DC 13). No recharge.", "tags": ["Wand", "Utility"]}, {"name": "Wand of the War Mage +1", "cat": "Wands", "rarity": "Uncommon", "base": 250, "stock": 1, "effect": "<strong>+1 spell attack rolls and save DC.</strong> Ignore half cover for spell attacks. Permanent.", "tags": ["Wand", "Caster"]}, {"name": "Wand of Fireballs", "cat": "Wands", "rarity": "Rare", "base": 450, "stock": 1, "effect": "7 charges. Fireball (8d6, DC 14). Regains 1d6 charges at midnight.", "tags": ["Wand", "Offense"]}, {"name": "Wand of Lightning Bolts", "cat": "Wands", "rarity": "Rare", "base": 450, "stock": 1, "effect": "7 charges. Lightning Bolt (8d6, DC 14, 100-ft line). Regains 1d6 at midnight.", "tags": ["Wand", "Offense"]}, {"name": "Wand of Paralysis", "cat": "Wands", "rarity": "Rare", "base": 450, "stock": "order", "effect": "4 charges. Ray (DC 14 CON) or paralyzed 1 min. Regains 1d4 at dawn.", "tags": ["Wand", "Control"]}, {"name": "Wand of Polymorph", "cat": "Wands", "rarity": "Rare", "base": 450, "stock": "order", "effect": "3 charges. Polymorph (DC 14, concentration). Regains 1d3 at dawn.", "tags": ["Wand", "Control"]}, {"name": "Wand of Wonder", "cat": "Wands", "rarity": "Rare", "base": 500, "stock": 1, "effect": "Roll 1d100 for a random magical effect. Never burns out. Vane sells it as-is, no refunds.", "tags": ["Wand", "Chaos"]}, {"name": "Necklace of Adaptation", "cat": "Sea & Survival", "rarity": "Uncommon", "base": 300, "stock": 3, "effect": "Breathe normally in any environment, including <strong>underwater</strong>. Advantage vs harmful gases. Attunement.", "tags": ["Sea", "Wondrous", "Attunement"]}, {"name": "Cloak of the Manta Ray", "cat": "Sea & Survival", "rarity": "Uncommon", "base": 500, "stock": 2, "effect": "Swim 60 ft and breathe underwater while hood is up. Hard to see in water.", "tags": ["Sea", "Wondrous"]}, {"name": "Cap of Water Breathing", "cat": "Sea & Survival", "rarity": "Uncommon", "base": 300, "stock": 2, "effect": "Underwater, action to create a bubble letting you breathe normally. No attunement.", "tags": ["Sea", "Wondrous"]}, {"name": "Decanter of Endless Water", "cat": "Sea & Survival", "rarity": "Uncommon", "base": 400, "stock": 1, "effect": "Command word produces fresh or salt water \u2014 stream, fountain, or geyser (30 gal/round).", "tags": ["Sea", "Wondrous", "Utility"]}, {"name": "Driftglobe", "cat": "Sea & Survival", "rarity": "Uncommon", "base": 200, "stock": 4, "effect": "Cast Light or Daylight from a floating glass sphere that follows you. Attunement.", "tags": ["Utility", "Wondrous"]}, {"name": "Lantern of Revealing", "cat": "Sea & Survival", "rarity": "Uncommon", "base": 250, "stock": 2, "effect": "Burns for 6 hours/flask of oil; reveals invisible creatures within 30 ft of the light.", "tags": ["Utility", "Wondrous"]}, {"name": "Rope of Climbing", "cat": "Sea & Survival", "rarity": "Uncommon", "base": 250, "stock": 3, "effect": "60-ft rope that moves on command, knots itself, holds 3,000 lb.", "tags": ["Utility", "Wondrous"]}, {"name": "Goggles of Night", "cat": "Sea & Survival", "rarity": "Uncommon", "base": 300, "stock": 2, "effect": "Darkvision 60 ft while worn. No attunement.", "tags": ["Utility", "Wondrous"]}, {"name": "Cloak of Protection", "cat": "Arms & Defense", "rarity": "Uncommon", "base": 750, "stock": 2, "effect": "<strong>+1 AC and +1 to all saving throws.</strong> Attunement.", "tags": ["Defense", "Wondrous", "Attunement"]}, {"name": "Ring of Protection", "cat": "Arms & Defense", "rarity": "Rare", "base": 1000, "stock": 1, "effect": "<strong>+1 AC and +1 to all saving throws.</strong> Stacks with the cloak. Attunement.", "tags": ["Defense", "Ring", "Attunement"]}, {"name": "Bracers of Archery", "cat": "Arms & Defense", "rarity": "Uncommon", "base": 500, "stock": 1, "effect": "<strong>+2 damage</strong> with longbows/shortbows. Proficiency with both. Attunement.", "tags": ["Offense", "Wondrous", "Attunement"]}, {"name": "+1 Weapon (any common type)", "cat": "Arms & Defense", "rarity": "Uncommon", "base": 1000, "stock": 2, "effect": "<strong>+1 to attack and damage.</strong> Specify type at purchase (sword, axe, bow, etc.).", "tags": ["Offense", "Weapon"]}, {"name": "+1 Shield", "cat": "Arms & Defense", "rarity": "Uncommon", "base": 750, "stock": 1, "effect": "<strong>+1 AC</strong> beyond the shield's normal bonus.", "tags": ["Defense", "Shield"]}, {"name": "Adamantine Armor (medium)", "cat": "Arms & Defense", "rarity": "Uncommon", "base": 500, "stock": 1, "effect": "Any critical hit against you becomes a normal hit. Base armor cost included.", "tags": ["Defense", "Armor"]}, {"name": "Necklace of Fireballs (5 beads)", "cat": "Arms & Defense", "rarity": "Rare", "base": 750, "stock": 1, "effect": "Detach and throw a bead: <strong>8d6 fire</strong>, 20-ft radius. No attunement.", "tags": ["Offense", "Wondrous"]}, {"name": "Sentinel Shield", "cat": "Arms & Defense", "rarity": "Uncommon", "base": 500, "stock": 1, "effect": "Advantage on Initiative and Perception while held.", "tags": ["Defense", "Shield"]}, {"name": "Pearl of Power", "cat": "Wondrous", "rarity": "Uncommon", "base": 600, "stock": 2, "effect": "1/day, recover one spell slot of 3rd level or lower. Attunement (caster).", "tags": ["Caster", "Wondrous", "Attunement"]}, {"name": "Periapt of Wound Closure", "cat": "Wondrous", "rarity": "Uncommon", "base": 500, "stock": 2, "effect": "Auto-stabilize at 0 HP. Double HP from spent Hit Dice. Attunement.", "tags": ["Healing", "Wondrous", "Attunement"]}, {"name": "Bag of Holding", "cat": "Wondrous", "rarity": "Uncommon", "base": 500, "stock": 3, "effect": "Holds 500 lb / 64 cu ft in an extradimensional space. Weighs 15 lb.", "tags": ["Utility", "Wondrous"]}, {"name": "Immovable Rod", "cat": "Wondrous", "rarity": "Uncommon", "base": 500, "stock": 2, "effect": "Press the button and it fixes in place, holding up to 8,000 lb.", "tags": ["Utility"]}, {"name": "Boots of Striding and Springing", "cat": "Wondrous", "rarity": "Uncommon", "base": 500, "stock": 1, "effect": "Speed becomes 30 (if lower); jump distance tripled. Attunement.", "tags": ["Utility", "Wondrous", "Attunement"]}, {"name": "Boots of the Winterlands", "cat": "Wondrous", "rarity": "Uncommon", "base": 400, "stock": 1, "effect": "Cold resistance, ignore difficult terrain from ice/snow, stay warm. Attunement.", "tags": ["Utility", "Wondrous", "Attunement"]}, {"name": "Gloves of Thievery", "cat": "Wondrous", "rarity": "Uncommon", "base": 300, "stock": 2, "effect": "<strong>+5</strong> to Sleight of Hand and to pick locks. Invisible when worn.", "tags": ["Utility", "Wondrous"]}, {"name": "Hat of Disguise", "cat": "Wondrous", "rarity": "Uncommon", "base": 500, "stock": 1, "effect": "At will, cast Disguise Self. Attunement.", "tags": ["Utility", "Wondrous", "Attunement"]}, {"name": "Eyes of the Eagle", "cat": "Wondrous", "rarity": "Uncommon", "base": 250, "stock": 2, "effect": "Advantage on sight-based Perception. See detail at distance. Attunement.", "tags": ["Utility", "Wondrous", "Attunement"]}, {"name": "Amulet of Health", "cat": "Wondrous", "rarity": "Rare", "base": 2000, "stock": "order", "effect": "Your <strong>CON becomes 19</strong> while worn. Attunement.", "tags": ["Buff", "Wondrous", "Attunement"]}, {"name": "Ring of Spell Storing", "cat": "Wondrous", "rarity": "Rare", "base": 1000, "stock": "order", "effect": "Store up to 5 levels of spells; cast them later. Allies can load it. Attunement.", "tags": ["Caster", "Ring", "Attunement"]}, {"name": "Instrument of the Bards (Canaith Mandolin)", "cat": "Wondrous", "rarity": "Rare", "base": 1000, "stock": "order", "effect": "<strong>+1 spell attack/DC</strong>; cast Fly, Invisibility, Cure Wounds, Dispel Magic 1/day each. Bard only.", "tags": ["Caster", "Wondrous", "Attunement"]}, {"name": "Rations (1 day)", "cat": "Provisions", "rarity": "Common", "base": 1, "stock": 200, "effect": "Dried trail food. Bulk discount if you buy a week.", "tags": ["Supply", "Mundane"]}, {"name": "Torch (bundle of 5)", "cat": "Provisions", "rarity": "Common", "base": 1, "stock": 120, "effect": "Burns 1 hour each, 20-ft bright light.", "tags": ["Supply", "Mundane"]}, {"name": "Healer's Kit", "cat": "Provisions", "rarity": "Common", "base": 5, "stock": 18, "effect": "10 uses. Stabilize a dying creature with no check.", "tags": ["Supply", "Healing", "Mundane"]}, {"name": "Antitoxin (vial)", "cat": "Provisions", "rarity": "Common", "base": 50, "stock": 9, "effect": "Advantage on saves vs poison for 1 hour.", "tags": ["Supply", "Consumable", "Mundane"]}, {"name": "Alchemist's Fire (flask)", "cat": "Provisions", "rarity": "Common", "base": 50, "stock": 14, "effect": "Thrown; <strong>1d4 fire</strong>/turn until a DC 10 action puts it out.", "tags": ["Supply", "Consumable", "Mundane"]}, {"name": "Acid (vial)", "cat": "Provisions", "rarity": "Common", "base": 25, "stock": 12, "effect": "Thrown; <strong>2d6 acid</strong> on a hit.", "tags": ["Supply", "Consumable", "Mundane"]}, {"name": "Caltrops (bag)", "cat": "Provisions", "rarity": "Common", "base": 1, "stock": 40, "effect": "Cover a 5-ft square; DC 15 DEX or 1 damage and speed reduced.", "tags": ["Supply", "Mundane"]}, {"name": "Hunting Trap", "cat": "Provisions", "rarity": "Common", "base": 5, "stock": 11, "effect": "Steel jaws; 1d4 piercing and speed 0 until freed (DC 13 STR).", "tags": ["Supply", "Mundane"]}, {"name": "Climber's Kit", "cat": "Provisions", "rarity": "Common", "base": 25, "stock": 7, "effect": "Pitons, boot tips, harness. Anchor yourself in place.", "tags": ["Supply", "Mundane"]}, {"name": "Grappling Hook", "cat": "Provisions", "rarity": "Common", "base": 2, "stock": 15, "effect": "Steel hook for 50 ft of rope (rope sold separately).", "tags": ["Supply", "Mundane"]}, {"name": "Oil (flask)", "cat": "Provisions", "rarity": "Common", "base": 1, "stock": 60, "effect": "Fuel a lantern 6 hours, or throw as a 1d6 fire splash.", "tags": ["Supply", "Mundane"]}, {"name": "Holy Water (flask)", "cat": "Provisions", "rarity": "Common", "base": 25, "stock": 6, "effect": "Thrown; <strong>2d6 radiant</strong> to fiends and undead.", "tags": ["Supply", "Consumable", "Mundane"]}, {"name": "Potion of Fire Breath", "cat": "Potions", "rarity": "Uncommon", "base": 150, "stock": 4, "effect": "3 uses within 1 hour. Bonus action: exhale fire, 20-ft line, DC 13 DEX or <strong>4d6 fire</strong>.", "tags": ["Offense", "Consumable"]}, {"name": "Potion of Growth", "cat": "Potions", "rarity": "Uncommon", "base": 250, "stock": 3, "effect": "Enlarge effect for 1d4 hours: advantage on STR, +1d4 weapon damage, size Large.", "tags": ["Buff", "Consumable"]}, {"name": "Potion of Diminution", "cat": "Potions", "rarity": "Rare", "base": 300, "stock": 2, "effect": "Reduce effect for 1d4 hours: disadvantage on STR, \u22121d4 weapon damage, size Tiny.", "tags": ["Utility", "Consumable"]}, {"name": "Potion of Hill Giant Strength", "cat": "Potions", "rarity": "Uncommon", "base": 200, "stock": 3, "effect": "Your <strong>STR becomes 21</strong> for 1 hour.", "tags": ["Buff", "Consumable"]}, {"name": "Potion of Vitality", "cat": "Potions", "rarity": "Very Rare", "base": 1000, "stock": "order", "effect": "Removes exhaustion, cures disease/poison; max HP regained from Hit Dice for 24 hours.", "tags": ["Healing", "Consumable"]}, {"name": "Potion of Clairvoyance", "cat": "Potions", "rarity": "Rare", "base": 400, "stock": 1, "effect": "Cast Clairvoyance \u2014 see or hear a remote location you know. 10 minutes.", "tags": ["Utility", "Consumable"]}, {"name": "Oil of Slipperiness", "cat": "Potions", "rarity": "Uncommon", "base": 300, "stock": 2, "effect": "Apply to a creature: Freedom of Movement for 8 hrs. Or coat the ground as Grease.", "tags": ["Utility", "Consumable"]}, {"name": "Potion of Healing (wholesale, \u00d710)", "cat": "Potions", "rarity": "Common", "base": 450, "stock": 6, "effect": "A crate of <strong>ten</strong> common healing potions. Vane's bulk rate \u2014 already discounted before the Folly markup.", "tags": ["Healing", "Consumable", "Bulk"]}, {"name": "Scroll of Lesser Restoration", "cat": "Scrolls", "rarity": "Uncommon", "base": 75, "stock": 5, "effect": "End one disease or the blinded, deafened, paralyzed, or poisoned condition. Single use.", "tags": ["Scroll", "Lvl 2", "Healing"]}, {"name": "Scroll of Misty Step", "cat": "Scrolls", "rarity": "Uncommon", "base": 75, "stock": 6, "effect": "Bonus action: teleport 30 ft to a space you can see. Single use.", "tags": ["Scroll", "Lvl 2", "Utility"]}, {"name": "Scroll of Spider Climb", "cat": "Scrolls", "rarity": "Uncommon", "base": 75, "stock": 3, "effect": "Climb walls and ceilings with your hands free for 1 hour. Single use.", "tags": ["Scroll", "Lvl 2", "Utility"]}, {"name": "Scroll of Dispel Magic", "cat": "Scrolls", "rarity": "Rare", "base": 150, "stock": 3, "effect": "End spells of 3rd level or lower (higher: ability check). Single use.", "tags": ["Scroll", "Lvl 3", "Utility"]}, {"name": "Scroll of Fly", "cat": "Scrolls", "rarity": "Rare", "base": 150, "stock": 2, "effect": "Target gains a 60-ft fly speed for 10 minutes. Single use.", "tags": ["Scroll", "Lvl 3", "Utility"]}, {"name": "Scroll of Water Breathing", "cat": "Scrolls", "rarity": "Rare", "base": 150, "stock": 4, "effect": "Up to 10 creatures breathe underwater for 24 hours. Single use.", "tags": ["Scroll", "Lvl 3", "Sea"]}, {"name": "Scroll of Greater Restoration", "cat": "Scrolls", "rarity": "Rare", "base": 300, "stock": 1, "effect": "End exhaustion, charm, petrification, a curse, or one reduced ability/HP max. Single use.", "tags": ["Scroll", "Lvl 5", "Healing"]}, {"name": "Scroll of Revivify", "cat": "Scrolls", "rarity": "Rare", "base": 150, "stock": 2, "effect": "Return a creature dead \u22641 min to life with 1 HP. Costs a 300 gp diamond. Single use.", "tags": ["Scroll", "Lvl 3", "Healing"]}, {"name": "Wand of Web", "cat": "Wands", "rarity": "Uncommon", "base": 300, "stock": 2, "effect": "7 charges. Cast Web (DC 13, concentration). Regains 1d6+1 at dawn.", "tags": ["Wand", "Control"]}, {"name": "Wand of Enemy Detection", "cat": "Wands", "rarity": "Rare", "base": 400, "stock": 1, "effect": "7 charges. Sense the direction of hostile creatures within 60 ft for 1 min. Regains 1d6+1 at dawn.", "tags": ["Wand", "Utility"]}, {"name": "Wand of Binding", "cat": "Wands", "rarity": "Rare", "base": 450, "stock": "order", "effect": "7 charges. Cast Hold Monster or Hold Person; or expend 5 charges for advantage vs being grappled/restrained. Regains 1d6+1 at dawn.", "tags": ["Wand", "Control"]}, {"name": "Folding Boat", "cat": "Sea & Survival", "rarity": "Rare", "base": 600, "stock": 1, "effect": "A box that unfolds into a 10-ft rowboat or a 24-ft sailing ship on command.", "tags": ["Sea", "Wondrous"]}, {"name": "Trident of Fish Command", "cat": "Sea & Survival", "rarity": "Uncommon", "base": 400, "stock": 1, "effect": "3 charges. Cast Dominate Beast on a creature with a swim speed. Magic trident. Regains 1d3 at dawn.", "tags": ["Sea", "Weapon", "Attunement"]}, {"name": "Ring of Swimming", "cat": "Sea & Survival", "rarity": "Uncommon", "base": 300, "stock": 2, "effect": "Swim speed of 40 ft while worn. No attunement.", "tags": ["Sea", "Ring"]}, {"name": "Pole of Angling / Collapsible Pole", "cat": "Sea & Survival", "rarity": "Common", "base": 50, "stock": 5, "effect": "Telescopes from 6 inches to 10 ft on command. Holds 100 lb.", "tags": ["Utility", "Mundane"]}, {"name": "Tankard of Sobriety", "cat": "Sea & Survival", "rarity": "Common", "base": 75, "stock": 3, "effect": "Never become drunk from what you drink from it. A wharf favorite.", "tags": ["Utility", "Wondrous"]}, {"name": "+1 Ammunition (\u00d720)", "cat": "Arms & Defense", "rarity": "Uncommon", "base": 300, "stock": 4, "effect": "Twenty arrows or bolts, <strong>+1 attack and damage</strong>. Consumed on use.", "tags": ["Offense", "Consumable"]}, {"name": "Javelin of Lightning", "cat": "Arms & Defense", "rarity": "Uncommon", "base": 500, "stock": 2, "effect": "Throw and speak the word: becomes a lightning bolt, <strong>4d6 lightning</strong>, DC 13. Recharges daily.", "tags": ["Offense", "Weapon"]}, {"name": "Mariner's Armor (light/medium)", "cat": "Arms & Defense", "rarity": "Uncommon", "base": 500, "stock": 2, "effect": "While worn: swim speed = walk speed, no penalty; +1 AC if not wearing a shield. Won't drag you down.", "tags": ["Defense", "Armor", "Sea"]}, {"name": "Shield of Missile Attraction", "cat": "Arms & Defense", "rarity": "Rare", "base": 400, "stock": 1, "effect": "Resistance to ranged weapon damage \u2014 but ranged attacks near you redirect to you. Cursed. Vane discloses nothing.", "tags": ["Defense", "Shield", "Attunement"]}, {"name": "Flame Tongue (longsword)", "cat": "Arms & Defense", "rarity": "Rare", "base": 900, "stock": "order", "effect": "Bonus action ignites: <strong>+2d6 fire</strong> on hits, sheds bright light. Attunement.", "tags": ["Offense", "Weapon", "Attunement"]}, {"name": "Cloak of Elvenkind", "cat": "Wondrous", "rarity": "Uncommon", "base": 500, "stock": 1, "effect": "Advantage on Stealth; disadvantage on others' Perception to see you while hood is up. Attunement.", "tags": ["Utility", "Wondrous", "Attunement"]}, {"name": "Slippers of Spider Climbing", "cat": "Wondrous", "rarity": "Uncommon", "base": 400, "stock": 1, "effect": "Walk on walls and ceilings, hands free. Attunement.", "tags": ["Utility", "Wondrous", "Attunement"]}, {"name": "Brooch of Shielding", "cat": "Wondrous", "rarity": "Uncommon", "base": 500, "stock": 2, "effect": "Resistance to force damage; immune to Magic Missile. Attunement.", "tags": ["Defense", "Wondrous", "Attunement"]}, {"name": "Headband of Intellect", "cat": "Wondrous", "rarity": "Uncommon", "base": 500, "stock": 1, "effect": "Your <strong>INT becomes 19</strong> while worn. Attunement.", "tags": ["Buff", "Wondrous", "Attunement"]}, {"name": "Gauntlets of Ogre Power", "cat": "Wondrous", "rarity": "Uncommon", "base": 500, "stock": 1, "effect": "Your <strong>STR becomes 19</strong> while worn. Attunement.", "tags": ["Buff", "Wondrous", "Attunement"]}, {"name": "Winged Boots", "cat": "Wondrous", "rarity": "Uncommon", "base": 600, "stock": "order", "effect": "Fly speed = walk speed, up to 4 hours per charge (regains daily). Attunement.", "tags": ["Utility", "Wondrous", "Attunement"]}, {"name": "Stone of Good Luck (Luckstone)", "cat": "Wondrous", "rarity": "Uncommon", "base": 600, "stock": 1, "effect": "<strong>+1 to ability checks and saving throws</strong> while on your person. Attunement.", "tags": ["Buff", "Wondrous", "Attunement"]}, {"name": "Helm of Comprehending Languages", "cat": "Wondrous", "rarity": "Uncommon", "base": 250, "stock": 2, "effect": "Read and understand any spoken or written language at will.", "tags": ["Utility", "Wondrous"]}, {"name": "Ring of Mind Shielding", "cat": "Wondrous", "rarity": "Uncommon", "base": 400, "stock": 1, "effect": "Immune to mind-reading; your thoughts and alignment can't be detected. Attunement.", "tags": ["Defense", "Ring", "Attunement"]}, {"name": "Ioun Stone (Reserve)", "cat": "Wondrous", "rarity": "Rare", "base": 800, "stock": "order", "effect": "Orbits your head. Stores up to 3 levels of spells cast into it for later. Attunement.", "tags": ["Caster", "Wondrous", "Attunement"]}, {"name": "Ball Bearings (bag of 1,000)", "cat": "Provisions", "rarity": "Common", "base": 1, "stock": 50, "effect": "Spill across a 10-ft square; DC 10 DEX or fall prone.", "tags": ["Supply", "Mundane"]}, {"name": "Hooded Lantern", "cat": "Provisions", "rarity": "Common", "base": 5, "stock": 20, "effect": "30-ft bright light; hood it to dim. Burns 6 hours per flask of oil.", "tags": ["Supply", "Mundane"]}, {"name": "Smith's Tools", "cat": "Provisions", "rarity": "Common", "base": 20, "stock": 4, "effect": "For repairing arms and armor. Proficiency required to use well.", "tags": ["Supply", "Mundane", "Tools"]}, {"name": "Healer's Satchel (bulk, \u00d75 kits)", "cat": "Provisions", "rarity": "Common", "base": 22, "stock": 6, "effect": "Five Healer's Kits crated together at Vane's bulk rate.", "tags": ["Supply", "Healing", "Mundane", "Bulk"]}, {"name": "Spyglass", "cat": "Provisions", "rarity": "Common", "base": 1000, "stock": 1, "effect": "Objects viewed are magnified to twice their size. A captain's tool.", "tags": ["Supply", "Mundane"]}, {"name": "Manacles", "cat": "Provisions", "rarity": "Common", "base": 2, "stock": 12, "effect": "Secure a Small or Medium creature. DC 20 to escape, DC 15 to break.", "tags": ["Supply", "Mundane"]}, {"name": "Signal Whistle / Horn", "cat": "Provisions", "rarity": "Common", "base": 5, "stock": 15, "effect": "Carries across the wharf. For calling a runner or raising alarm.", "tags": ["Supply", "Mundane"]}, {"name": "Map or Scroll Case", "cat": "Provisions", "rarity": "Common", "base": 1, "stock": 25, "effect": "Watertight tube. Protects charts and scrolls from the sea air.", "tags": ["Supply", "Mundane"]}], "catOrder": ["Potions", "Scrolls", "Wands", "Sea & Survival", "Arms & Defense", "Wondrous", "Provisions"]}
+</script>
+<script>
+// ── STATE ──
+const DATA = JSON.parse(document.getElementById('data').textContent);
+const ITEMS = DATA.items.map((it,i)=>({...it, id:i, folly: Math.round(it.base*1.5)}));
+const CAT_ORDER = DATA.catOrder;
+let cart = {};           // id -> qty
+let isMember = false;
+let activeCat = '';      // '' = all
+let searchTerm = '';
+let rarityF = '';
+let stockF = '';
+let sortMode = 'cat';
+
+const RARITY_RANK = {"Common":1,"Uncommon":2,"Rare":3,"Very Rare":4,"Legendary":5};
+const RARITY_CLASS = {"Common":"r-common","Uncommon":"r-uncommon","Rare":"r-rare","Very Rare":"r-veryrare","Legendary":"r-legendary"};
+
+// ── HELPERS ──
+function stockState(it){
+  if(it.stock==='order') return 'order';
+  if(it.stock<=2) return 'low';
+  return 'in';
+}
+// Special order is always ready in the store in 2 days, for everyone.
+const ORDER_READY_DAYS = 2;
+
+// Delivery time VARIES by how far/awkward the haul is. Bands derived from rarity + bulk/heavy tags.
+// This is the door-to-door courier time for Vane Account members, on TOP of any store-ready wait.
+function deliveryBand(it){
+  const heavy = it.tags.some(t=>['Bulk','Armor','Sea'].includes(t)) || /folding boat|spyglass|armor|crate|satchel/i.test(it.name);
+  const r = RARITY_RANK[it.rarity]||1;
+  if(heavy || r>=4) return {label:'3–5 days', min:3, max:5};
+  if(r===3)        return {label:'2–4 days', min:2, max:4};
+  return            {label:'1–2 days', min:1, max:2};
+}
+function fmtGP(n){ return n.toLocaleString('en-US'); }
+
+// ── CHIPS ──
+function buildChips(){
+  const bar = document.getElementById('chipBar');
+  let html = `<button class="chip ${activeCat===''?'active':''}" onclick="setCat('')">All Goods</button>`;
+  CAT_ORDER.forEach(c=>{
+    html += `<button class="chip ${activeCat===c?'active':''}" onclick="setCat('${c.replace(/'/g,"\\'")}')">${c}</button>`;
+  });
+  bar.innerHTML = html;
+}
+function setCat(c){ activeCat=c; buildChips(); render(); }
+
+// ── FILTER + SORT ──
+function getFiltered(){
+  let list = ITEMS.filter(it=>{
+    if(activeCat && it.cat!==activeCat) return false;
+    if(rarityF && it.rarity!==rarityF) return false;
+    if(stockF){
+      const s = stockState(it);
+      if(stockF==='in' && s!=='in') return false;
+      if(stockF==='low' && s!=='low') return false;
+      if(stockF==='order' && s!=='order') return false;
+    }
+    if(searchTerm){
+      const hay = (it.name+' '+it.cat+' '+it.rarity+' '+it.tags.join(' ')+' '+it.effect).toLowerCase();
+      if(!hay.includes(searchTerm)) return false;
+    }
+    return true;
+  });
+  if(sortMode==='price-asc') list.sort((a,b)=>a.folly-b.folly);
+  else if(sortMode==='price-desc') list.sort((a,b)=>b.folly-a.folly);
+  else if(sortMode==='name') list.sort((a,b)=>a.name.localeCompare(b.name));
+  else if(sortMode==='rarity') list.sort((a,b)=>RARITY_RANK[b.rarity]-RARITY_RANK[a.rarity] || a.folly-b.folly);
+  return list;
+}
+
+// ── RENDER CATALOG ──
+function itemCardHTML(it){
+  const s = stockState(it);
+  let stockHTML='', delHTML='';
+  if(s==='in'){ stockHTML = `<div class="stock-line in-stock">● ${it.stock} on the shelf</div>`; }
+  else if(s==='low'){ stockHTML = `<div class="stock-line low-stock">● only ${it.stock} left</div>`; }
+  else { stockHTML = `<div class="stock-line out-stock">○ special order</div>`; }
+
+  if(s==='order'){
+    delHTML = `<div class="delivery-line">ready in store in ${ORDER_READY_DAYS} days</div>`;
+    if(isMember){
+      delHTML += `<div class="delivery-line">then delivered: ${deliveryBand(it).label}</div>`;
+    }
+  } else if(isMember){
+    delHTML = `<div class="delivery-line">delivery: ${deliveryBand(it).label}</div>`;
+  }
+
+  const rdot = RARITY_CLASS[it.rarity]||'r-common';
+  const tags = it.tags.map(t=>`<span class="tag">${t}</span>`).join('');
+  const itemClass = s==='order' ? 'item premium-only' : 'item';
+
+  return `<div class="${itemClass}" data-id="${it.id}">
+    <div class="item-main">
+      <div class="item-name"><span class="rarity-dot ${rdot}"></span>${it.name}</div>
+      <div class="item-tags"><span class="tag rarity">${it.rarity}</span>${tags}</div>
+      <div class="item-effect">${it.effect}</div>
+    </div>
+    <div class="item-price">
+      <span class="price-base">${fmtGP(it.base)} gp</span>
+      <span class="price-folly">${fmtGP(it.folly)}<span class="gp"> gp</span></span>
+      ${stockHTML}${delHTML}
+      <button class="add-btn" onclick="addToCart(${it.id})">Add to order</button>
+    </div>
+  </div>`;
+}
+
+function render(){
+  const list = getFiltered();
+  const catalog = document.getElementById('catalog');
+  document.getElementById('resultCount').textContent = `${list.length} of ${ITEMS.length} goods`;
+
+  if(list.length===0){
+    catalog.innerHTML = `<div class="no-results"><strong>Nothing matches</strong>Vane spreads his hands. "If the Store doesn\'t carry it, it isn\'t sold here legally. Try a broader search — or the wharf, at your own risk."</div>`;
+    return;
+  }
+
+  let html='';
+  if(sortMode==='cat'){
+    CAT_ORDER.forEach(cat=>{
+      const inCat = list.filter(it=>it.cat===cat);
+      if(inCat.length===0) return;
+      html += `<div class="cat-section"><div class="cat-header"><h2>${cat}</h2><span class="cat-count">${inCat.length} listed</span></div>`;
+      inCat.forEach(it=> html += itemCardHTML(it));
+      html += `</div>`;
+    });
+  } else {
+    html += `<div class="cat-section">`;
+    list.forEach(it=> html += itemCardHTML(it));
+    html += `</div>`;
+  }
+  catalog.innerHTML = html;
+}
+
+// ── CART ──
+function addToCart(id){ cart[id]=(cart[id]||0)+1; renderCart(); }
+function removeFromCart(id){ delete cart[id]; renderCart(); }
+function changeQty(id,delta){
+  cart[id]=(cart[id]||0)+delta;
+  if(cart[id]<=0) delete cart[id];
+  renderCart();
+}
+function clearCart(){ cart={}; renderCart(); }
+
+function renderCart(){
+  pushMyState();  // sync my cart to the party (no-op if not connected)
+  const body = document.getElementById('cartBody');
+  const ids = Object.keys(cart);
+  const count = ids.reduce((s,id)=>s+cart[id],0);
+  document.getElementById('cartCount').textContent = `${count} item${count!==1?'s':''}`;
+
+  if(ids.length===0){
+    body.innerHTML = `<div class="cart-empty">Nothing tallied yet.</div>`;
+    return;
+  }
+
+  let subtotal=0, anyOrder=false, maxDelMax=0, maxDelLabel='1–2 days';
+  let rows='';
+  ids.forEach(id=>{
+    const it = ITEMS[id]; const q = cart[id];
+    const line = it.folly*q; subtotal+=line;
+    const s = stockState(it);
+    if(s==='order') anyOrder=true;
+    const band = deliveryBand(it);
+    if(band.max > maxDelMax){ maxDelMax = band.max; maxDelLabel = band.label; }
+    rows += `<div class="cart-item">
+      <div class="cart-item-name">${it.name} <span class="qty">×${q}</span>
+        <div class="cart-item-meta">
+          <span class="cart-rm" onclick="changeQty(${id},-1)">−</span>
+          <span class="cart-rm" onclick="changeQty(${id},1)">+</span>
+          <span class="cart-rm" onclick="removeFromCart(${id})">✕</span>
+        </div>
+      </div>
+      <div class="cart-item-price">${fmtGP(line)} gp</div>
+    </div>`;
+  });
+
+  // delivery logic — order-ready is a flat 2 days; delivery time varies by slowest item
+  let deliveryHTML='';
+  if(isMember){
+    if(anyOrder){
+      deliveryHTML = `<div class="cart-row"><span>Ready in store</span><span>${ORDER_READY_DAYS} days</span></div>
+        <div class="cart-row delivery-eta"><span>Then delivered</span><span>${maxDelLabel}</span></div>`;
+    } else {
+      deliveryHTML = `<div class="cart-row delivery-eta"><span>Door delivery</span><span>${maxDelLabel}</span></div>`;
+    }
+  } else if(anyOrder){
+    deliveryHTML = `<div class="cart-row"><span>Special order ready</span><span>${ORDER_READY_DAYS} days, then collect</span></div>`;
+  } else {
+    deliveryHTML = `<div class="cart-row"><span>Collection</span><span>at the counter</span></div>`;
+  }
+
+  body.innerHTML = rows + `<div class="cart-totals">
+    <div class="cart-row"><span>Subtotal (Folly rate)</span><span>${fmtGP(subtotal)} gp</span></div>
+    ${deliveryHTML}
+    <div class="cart-row total"><span>Total</span><span>${fmtGP(subtotal)} gp</span></div>
+    <button class="clear-cart" onclick="clearCart()">Clear order</button>
+  </div>`;
+}
+
+// ── MEMBERSHIP ──
+function toggleMember(){
+  isMember = !isMember;
+  const btn = document.getElementById('memberToggle');
+  if(isMember){
+    btn.textContent = 'Membership Active ✓';
+    btn.classList.add('active');
+  } else {
+    btn.textContent = 'Activate Membership';
+    btn.classList.remove('active');
+  }
+  render();
+  renderCart();
+}
+
+// ════════════════════════════════════════════════════════════════
+//  SHOPPING LISTS + LIVE PARTY SYNC
+// ════════════════════════════════════════════════════════════════
+let playerName = localStorage.getItem('cs_player') || '';
+let partyCode  = localStorage.getItem('cs_party')  || '';
+let savedLists = JSON.parse(localStorage.getItem('cs_lists') || '{}'); // {listId: {name, owner, cart, ts}}
+let partyState = {};   // {playerName: {cart, ts}}  — from Firebase
+let syncMode   = 'local'; // 'local' | 'live' | 'connecting'
+let fb = null, myStateRef = null, partyRef = null, listsRef = null;
+
+// ── IDENTITY / JOIN ──
+function joinParty(){
+  const n = document.getElementById('playerName').value.trim();
+  const c = document.getElementById('partyCode').value.trim().toLowerCase().replace(/[^a-z0-9-]/g,'');
+  if(!n){ document.getElementById('playerName').focus(); return; }
+  playerName = n; partyCode = c;
+  localStorage.setItem('cs_player', n);
+  localStorage.setItem('cs_party', c);
+  if(c && fb){ connectLive(); }
+  else { syncMode='local'; updateSyncUI(); }
+  renderCart(); renderSavedLists();
+}
+
+function connectLive(){
+  if(!fb || !partyCode){ return; }
+  syncMode='connecting'; updateSyncUI();
+  const { db, ref, set, onValue, onDisconnect, serverTimestamp } = fb;
+  const base = `parties/${partyCode}`;
+  myStateRef = ref(db, `${base}/carts/${safeKey(playerName)}`);
+  partyRef   = ref(db, `${base}/carts`);
+  listsRef   = ref(db, `${base}/lists`);
+
+  // Remove my cart node if I close the tab
+  try { onDisconnect(myStateRef).remove(); } catch(e){}
+
+  // Listen to everyone's carts
+  onValue(partyRef, snap => {
+    partyState = snap.val() || {};
+    syncMode='live'; updateSyncUI(); renderParty();
+  }, err => { console.warn(err); syncMode='local'; updateSyncUI(); });
+
+  // Listen to shared saved lists
+  onValue(listsRef, snap => {
+    const remote = snap.val() || {};
+    // merge remote lists into local view (remote wins for shared ids)
+    savedLists = { ...savedLists, ...remote };
+    renderSavedLists();
+  });
+
+  pushMyState();
+}
+
+function safeKey(s){ return s.replace(/[.#$/\[\]]/g,'_'); }
+
+// ── PUSH MY CART TO THE PARTY ──
+function pushMyState(){
+  if(syncMode==='live' && fb && myStateRef && playerName){
+    const { set, serverTimestamp } = fb;
+    set(myStateRef, { name: playerName, cart, ts: Date.now() }).catch(()=>{});
+  }
+}
+
+// ── SAVE / LOAD / DELETE LISTS ──
+function saveCurrentList(){
+  const nameInput = document.getElementById('listName');
+  const name = nameInput.value.trim();
+  if(Object.keys(cart).length===0){ return; }
+  if(!name){ nameInput.focus(); return; }
+  const id = 'list_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  const entry = { name, owner: playerName||'You', cart: {...cart}, ts: Date.now() };
+  savedLists[id] = entry;
+  persistLists();
+  if(syncMode==='live' && fb && listsRef){
+    fb.set(fb.ref(fb.db, `parties/${partyCode}/lists/${id}`), entry).catch(()=>{});
+  }
+  nameInput.value='';
+  renderSavedLists();
+}
+
+function loadList(id){
+  const l = savedLists[id]; if(!l) return;
+  cart = {...l.cart};
+  renderCart();
+}
+
+function deleteList(id){
+  delete savedLists[id];
+  persistLists();
+  if(syncMode==='live' && fb && listsRef){
+    fb.remove(fb.ref(fb.db, `parties/${partyCode}/lists/${id}`)).catch(()=>{});
+  }
+  renderSavedLists();
+}
+
+function persistLists(){
+  // only keep locally-owned lists in localStorage (remote ones come from Firebase)
+  localStorage.setItem('cs_lists', JSON.stringify(savedLists));
+}
+
+// ── COPY ANOTHER PLAYER'S CART INTO MINE ──
+function copyPartyCart(pkey){
+  const m = partyState[pkey]; if(!m || !m.cart) return;
+  cart = {...m.cart};
+  renderCart();
+}
+
+// ── RENDERERS ──
+function renderSavedLists(){
+  const body = document.getElementById('savedListsBody');
+  const ids = Object.keys(savedLists).sort((a,b)=>(savedLists[b].ts||0)-(savedLists[a].ts||0));
+  document.getElementById('listCount').textContent = ids.length;
+  if(ids.length===0){ body.innerHTML = `<div class="cart-empty">No saved lists yet.</div>`; return; }
+  body.innerHTML = ids.map(id=>{
+    const l = savedLists[id];
+    const n = Object.values(l.cart).reduce((s,q)=>s+q,0);
+    const total = Object.entries(l.cart).reduce((s,[iid,q])=>s+(ITEMS[iid]?ITEMS[iid].folly*q:0),0);
+    const ownerTag = (l.owner && l.owner!==playerName && l.owner!=='You') ? `<span class="saved-list-owner">${escapeHtml(l.owner)}</span> · ` : '';
+    return `<div class="saved-list">
+      <div style="min-width:0;">
+        <div class="saved-list-name" onclick="loadList('${id}')">${escapeHtml(l.name)}</div>
+        <div class="saved-list-meta">${ownerTag}${n} item${n!==1?'s':''} · ${total.toLocaleString()} gp</div>
+      </div>
+      <div class="saved-list-btns">
+        <button class="mini-btn" onclick="loadList('${id}')">Load</button>
+        <button class="mini-btn danger" onclick="deleteList('${id}')">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderParty(){
+  const panel = document.getElementById('partyPanel');
+  const body = document.getElementById('partyBody');
+  const keys = Object.keys(partyState);
+  if(syncMode!=='live'){ panel.style.display='none'; return; }
+  panel.style.display='';
+  document.getElementById('partyCount').textContent = `${keys.length} here`;
+  if(keys.length===0){ body.innerHTML=`<div class="cart-empty">No one else here yet.</div>`; return; }
+  body.innerHTML = keys.map(k=>{
+    const m = partyState[k]; const isMe = m.name===playerName;
+    const entries = Object.entries(m.cart||{});
+    const n = entries.reduce((s,[,q])=>s+q,0);
+    const total = entries.reduce((s,[iid,q])=>s+(ITEMS[iid]?ITEMS[iid].folly*q:0),0);
+    const itemsText = entries.length
+      ? entries.map(([iid,q])=>`${ITEMS[iid]?ITEMS[iid].name:'?'} ×${q}`).join(', ')
+      : null;
+    return `<div class="party-member-cart">
+      <div class="party-member-name">${escapeHtml(m.name||'?')} ${isMe?'<span class="you-badge">YOU</span>':`<button class="mini-btn" onclick="copyPartyCart('${k}')">Copy</button>`}</div>
+      ${itemsText ? `<div class="party-member-items">${escapeHtml(itemsText)}</div><div class="party-member-total">${total.toLocaleString()} gp</div>` : `<div class="party-member-empty">cart empty</div>`}
+    </div>`;
+  }).join('');
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ── SYNC STATUS UI ──
+function updateSyncUI(){
+  const pill = document.getElementById('syncStatus');
+  const hint = document.getElementById('syncHint');
+  if(syncMode==='live'){
+    pill.textContent='live'; pill.className='sync-status sync-on';
+    hint.innerHTML = `Connected as <strong style="color:var(--teal)">${escapeHtml(playerName)}</strong> in party <strong style="color:var(--brass)">${escapeHtml(partyCode)}</strong>. Lists and carts sync live.`;
+  } else if(syncMode==='connecting'){
+    pill.textContent='connecting'; pill.className='sync-status sync-connecting';
+  } else {
+    pill.textContent = window._fbUnconfigured ? 'local only' : 'offline';
+    pill.className='sync-status sync-off';
+    if(window._fbUnconfigured){
+      hint.innerHTML = `Live sync isn't set up on this copy. Lists still save in your own browser. (DM: paste a Firebase config into the file to enable shared party sync.)`;
+    } else {
+      hint.innerHTML = `Pick a name and a shared party code. Everyone who enters the same code sees each other's carts and lists live.`;
+    }
+  }
+}
+
+// ── WIRE FIREBASE READINESS ──
+function onFb(){ fb = window._fb; if(playerName && partyCode){ connectLive(); } else { updateSyncUI(); } }
+window.addEventListener('firebase-ready', onFb);
+window.addEventListener('firebase-failed', ()=>{ syncMode='local'; updateSyncUI(); });
+window.addEventListener('firebase-unconfigured', ()=>{ syncMode='local'; updateSyncUI(); });
+if(window._fb) onFb();
+
+// restore identity into inputs
+document.getElementById('playerName').value = playerName;
+document.getElementById('partyCode').value = partyCode;
+
+// ── INIT (lists/sync) ──
+renderSavedLists();
+updateSyncUI();
+
+// ── EVENTS ──
+document.getElementById('search').addEventListener('input', e=>{ searchTerm=e.target.value.toLowerCase().trim(); render(); });
+document.getElementById('rarityFilter').addEventListener('change', e=>{ rarityF=e.target.value; render(); });
+document.getElementById('stockFilter').addEventListener('change', e=>{ stockF=e.target.value; render(); });
+document.getElementById('sortBy').addEventListener('change', e=>{ sortMode=e.target.value; render(); });
+
+// ── INIT ──
+buildChips();
+render();
+renderCart();
+
+</script>
+</body>
+</html>
